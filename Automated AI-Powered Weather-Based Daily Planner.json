@@ -1,0 +1,166 @@
+{
+  "name": "Automated AI-Powered Weather-Based Daily Planner",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -672,
+        -144
+      ],
+      "id": "6f5f6eac-239c-43bc-98a5-fcc77662174b",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "url": "=curl \"https://api.openweathermap.org/data/2.5/weather?q={city name}&appid={curl \"https://api.openweathermap.org/data/2.5/weather?q={city name}&appid={API key}\"}\"\n",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "q",
+              "value": "Mumbai"
+            },
+            {
+              "name": "appid",
+              "value": "2207d26b3ff3ff332d0157e9a9c90534"
+            },
+            {
+              "name": "units",
+              "value": "metric"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -464,
+        -144
+      ],
+      "id": "ecd88f54-600b-4f35-bfa3-c7dda7acf537",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an AI daily assistant creating a fun and personalized weather-based plan. Based on this weather data:\n\nTemperature: {{$json.main.temp}}°C\nWeather: {{$json.weather[0].description}}\nHumidity: {{$json.main.humidity}}%\n\nStart with a short, friendly greeting about today’s weather (e.g., “Good morning! Here’s your weather-ready plan for today!”).\nThen create a concise plan with these sections:\n\nOUTFIT SUGGESTION\nRecommend one outfit suitable for today’s weather.\nOUTDOOR ACTIVITY\nSuggest one fun outdoor activity, considering the temperature, weather, and humidity.\nWEATHER REMINDER\nInclude a practical, friendly tip (umbrella, sunscreen, jacket, or hydration reminder).\n\nFormatting rules:\nKeep it under 100 words.\nUse a friendly, engaging, and conversational tone.\nDo not use markdown formatting, bold, or special symbols.\nSeparate sections with line breaks and section titles in uppercase.\nSign off with: “Your Daily Weather Assistant”",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.8,
+      "position": [
+        -256,
+        -144
+      ],
+      "id": "40e1262c-ffcc-47f7-b7a6-199982f637ef",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -256,
+        80
+      ],
+      "id": "5a0ba51d-16dc-4095-b157-272e9cec0cd6",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "Vc8vQHt45QsGMity",
+          "name": "Google Gemini(PaLM) Api account 6581"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "vshimpi.2823vs@gmail.com",
+        "emailType": "text",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        96,
+        -144
+      ],
+      "id": "5bb3f269-e121-43a5-9313-c828abf7af3f",
+      "name": "Send a message",
+      "webhookId": "11f2c7b1-ce2a-49a1-972a-0ccf6eeba22c",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "NU0Bw951Mu3QXcjG",
+          "name": "Gmail account 1825"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "46219c40-8415-49a4-9b19-1704621c7606",
+  "meta": {
+    "instanceId": "969257b09ad2942bbaff2e2288304f4969030574d109cdeca05bf11f630884df"
+  },
+  "id": "PCBadMFKgk196GDt",
+  "tags": []
+}
